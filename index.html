@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>WordSmith</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,sans-serif;background:#0a1628;color:#e2e8f0;min-height:100vh;text-align:center}
+.c{max-width:700px;margin:0 auto;padding:2rem}
+h1{font-size:2.5rem;background:linear-gradient(135deg,#00bcd4,#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.5rem}
+.sub{color:#94a3b8;margin-bottom:2rem}
+.text-display{background:#161b22;border:2px solid #30363d;border-radius:12px;padding:1.5rem;font-size:1.2rem;line-height:2;margin-bottom:1.5rem;text-align:left;min-height:120px}
+.text-display .correct{color:#3fb950}.text-display .wrong{color:#f85149;text-decoration:underline}.text-display .current{background:#00bcd433;border-bottom:2px solid #00bcd4}.text-display .pending{color:#64748b}
+input#input{width:100%;padding:14px;background:#161b22;border:2px solid #30363d;border-radius:8px;color:#e2e8f0;font-size:1.1rem;box-sizing:border-box;text-align:center}
+input#input:focus{border-color:#00bcd4;outline:none}
+.stats{display:flex;justify-content:center;gap:2rem;margin:1rem 0;font-size:1.1rem}
+.stats span{color:#00bcd4;font-weight:bold}
+.btn{padding:12px 32px;background:#00bcd4;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;margin-top:1rem}
+.footer{margin-top:2rem;color:#475569;font-size:0.85rem}
+</style></head><body>
+<div class="c">
+<h1>WordSmith</h1>
+<p class="sub">Test your typing speed!</p>
+<div class="stats">WPM: <span id="wpm">0</span> | Accuracy: <span id="acc">100%</span> | Time: <span id="time">30</span>s</div>
+<div class="text-display" id="text"></div>
+<input id="input" type="text" placeholder="Start typing..." oninput="checkInput()" disabled>
+<button class="btn" onclick="startTest()">Start Test</button>
+<p class="footer">Built with MiMo AI · Powered by MiMo AI</p>
+</div>
+<script>
+const texts=["the quick brown fox jumps over the lazy dog near the river bank where children play","a journey of a thousand miles begins with a single step into the unknown darkness ahead","technology shapes the future of humanity in ways we cannot yet imagine or understand fully","creativity is intelligence having fun with wild ideas and bold experiments every single day"];
+let current="",startTime=0,correct=0,total=0,running=false;
+function startTest(){
+  current=texts[Math.floor(Math.random()*texts.length)];
+  correct=0;total=0;running=true;startTime=Date.now();
+  document.getElementById("input").value="";document.getElementById("input").disabled=false;
+  document.getElementById("input").focus();
+  renderText();countdown();
+}
+function renderText(){
+  const typed=document.getElementById("input").value;
+  let html="";
+  for(let i=0;i<current.length;i++){
+    if(i<typed.length){
+      html+=typed[i]===current[i]?'<span class="correct">'+current[i]+'</span>':'<span class="wrong">'+current[i]+'</span>';
+    }else if(i===typed.length){html+='<span class="current">'+current[i]+'</span>';}
+    else{html+='<span class="pending">'+current[i]+'</span>';}
+  }
+  document.getElementById("text").innerHTML=html;
+}
+function checkInput(){
+  if(!running)return;
+  const typed=document.getElementById("input").value;
+  total=typed.length;correct=0;
+  for(let i=0;i<typed.length;i++)if(typed[i]===current[i])correct++;
+  const acc=total>0?Math.round(correct/total*100):100;
+  document.getElementById("acc").textContent=acc+"%";
+  const elapsed=(Date.now()-startTime)/60000;
+  const words=correct/5;
+  const wpm=elapsed>0?Math.round(words/elapsed):0;
+  document.getElementById("wpm").textContent=wpm;
+  renderText();
+  if(typed.length>=current.length){running=false;document.getElementById("input").disabled=true;}
+}
+function countdown(){
+  if(!running)return;
+  const elapsed=Math.floor((Date.now()-startTime)/1000);
+  document.getElementById("time").textContent=Math.max(0,30-elapsed);
+  if(elapsed>=30){running=false;document.getElementById("input").disabled=true;return;}
+  requestAnimationFrame(countdown);
+}
+</script></body></html>
